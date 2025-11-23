@@ -40,6 +40,8 @@
 		},
 		"production": {
 			"name": "bsky-list-fresh",
+			"preview_urls": false,
+			"workers_dev": true,
 			"assets": {
 				"directory": "./public"
 			},
