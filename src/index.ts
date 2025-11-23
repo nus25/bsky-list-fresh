@@ -23,16 +23,7 @@ function debugLog(env: Env, ...args: any[]): void {
  */
 function addSecurityHeaders(response: Response): Response {
 	const headers = new Headers(response.headers);
-    headers.set(
-			'Content-Security-Policy',
-			"default-src 'self'; " +
-			"style-src 'self'; " + 
-			"script-src 'self'; " + 
-			"connect-src 'self'"
-		);
 	headers.set('X-Content-Type-Options', 'nosniff');
-	headers.set('X-Frame-Options', 'DENY');
-	headers.set('X-XSS-Protection', '1; mode=block');
 
 	return new Response(response.body, {
 		status: response.status,
@@ -196,8 +187,8 @@ export default {
 						new Response(JSON.stringify(errorResponse), {
 							status: 400,
 							headers: {
-								 'Content-Type': 'application/json', 
-								 'Cache-Control': 'private, no-cache, must-revalidate' 
+								 'Content-Type': 'application/json; charset=utf-8', 
+								 'Cache-Control': 'private, no-cache' 
 								},
 						})
 					);
@@ -209,8 +200,8 @@ export default {
 					new Response(JSON.stringify(listInfo), {
 						status: 200,
 						headers: {
-							'Content-Type': 'application/json',
-							'Cache-Control': 'private, no-cache, must-revalidate',
+							'Content-Type': 'application/json; charset=utf-8',
+							'Cache-Control': 'private, no-cache',
 						},
 					})
 				);
@@ -229,8 +220,8 @@ export default {
 					new Response(JSON.stringify(errorResponse), {
 						status: statusCode,
 						headers: {
-							'Content-Type': 'application/json',
-							'Cache-Control': 'private, no-cache, must-revalidate',
+							'Content-Type': 'application/json; charset=utf-8',
+							'Cache-Control': 'private, no-cache',
 						},
 					})
 				);
