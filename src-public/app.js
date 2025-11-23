@@ -1,7 +1,7 @@
 // Translations
 const translations = {
 	en: {
-		pageTitle: 'Bluesky List Fresh',
+		pageTitle: 'Bsky List Fresh',
 		pageDescription: 'Check the last addition date of Bluesky lists',
 		submitText: '🔍 Check',
 		submitTextLoading: 'Checking...',
@@ -41,7 +41,7 @@ const translations = {
 			`
 	},
 	ja: {
-		pageTitle: 'Bluesky List Fresh',
+		pageTitle: 'Bsky List Fresh',
 		pageDescription: 'Blueskyリストの最終追加日を確認します',
 		submitText: '🔍 確認',
 		submitTextLoading: '確認中...',
