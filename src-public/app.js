@@ -3,7 +3,7 @@ const translations = {
 	en: {
 		pageTitle: 'Bsky List Fresh',
 		pageDescription: 'Check the last addition date of Bluesky lists',
-		submitText: '🔍 Check',
+		submitText: 'Check',
 		submitTextLoading: 'Checking...',
 		labelCreator: 'Creator',
 		labelPurpose: 'Type',
@@ -43,7 +43,7 @@ const translations = {
 	ja: {
 		pageTitle: 'Bsky List Fresh',
 		pageDescription: 'Blueskyリストの最終追加日を確認します',
-		submitText: '🔍 確認',
+		submitText: '確認',
 		submitTextLoading: '確認中...',
 		labelCreator: '作成者',
 		labelPurpose: '種類',
