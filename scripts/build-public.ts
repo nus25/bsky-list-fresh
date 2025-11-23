@@ -25,9 +25,13 @@ async function buildPublic() {
 	});
 
 	// Copy and minify HTML (esbuild doesn't handle HTML, so simple copy or use html-minifier)
-	const htmlSource = readFileSync(join(srcDir, 'index.html'), 'utf-8');
-	const htmlMinified = htmlSource.replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
-	writeFileSync(join(outDir, 'index.html'), htmlMinified);
+	const htmlFiles = ['index.html', 'terms-en.html', 'terms-ja.html'];
+	
+	for (const htmlFile of htmlFiles) {
+		const htmlSource = readFileSync(join(srcDir, htmlFile), 'utf-8');
+		const htmlMinified = htmlSource.replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
+		writeFileSync(join(outDir, htmlFile), htmlMinified);
+	}
 
 	console.log('✓ Public files minified successfully');
 }
