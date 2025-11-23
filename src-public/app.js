@@ -122,14 +122,6 @@ function setLanguage(lang) {
 			? `${tosLink}${t.labelAcceptTos}`
 			: `${t.labelAcceptTos} ${tosLink}`;
 		
-		// Reattach event listener for ToS link
-		const tosLinkElement = document.getElementById('tos-link');
-		if (tosLinkElement) {
-			tosLinkElement.addEventListener('click', (e) => {
-				e.preventDefault();
-				openTosModal();
-			});
-		}
 	}
 
 	// Update aria-current for language switcher
@@ -413,6 +405,13 @@ async function openTosModal() {
 		console.error('Error loading terms:', error);
 	}
 }
+
+document.addEventListener('click', (e) => {
+	if (e.target.id === 'tos-link') {
+		e.preventDefault();
+		openTosModal();
+	}
+});
 
 // ToS modal close handlers
 document.getElementById('tos-close').addEventListener('click', () => {
