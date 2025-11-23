@@ -1,0 +1,52 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "bsky-list-fresh",
+	"main": "src/index.ts",
+	"dev": {
+		"ip": "127.0.0.1"
+	},
+	"compatibility_date": "2025-11-21",
+	"compatibility_flags": [
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		// The path to the directory containing the `index.html` file to be served at `/`
+		"directory": "./src-public"
+	},
+	"observability": {
+		"enabled": true
+	},
+	/**
+	 * Environment Variables
+	 * DEBUG: Set to "true" to enable debug logging in development
+	 */
+	"vars": {
+		"DEBUG": "true"
+	},
+	"env": {
+		"staging": {
+			"name": "bsky-list-fresh-staging",
+			"assets": {
+				"directory": "./public"
+			},
+			"vars": {
+				"ENVIRONMENT": "staging",
+				"DEBUG": "false"
+			}
+		},
+		"production": {
+			"name": "bsky-list-fresh",
+			"assets": {
+				"directory": "./public"
+			},
+			"vars": {
+				"ENVIRONMENT": "production",
+				"DEBUG": "false"
+			}
+		}
+	}
+}

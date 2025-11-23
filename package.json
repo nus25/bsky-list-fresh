@@ -1,0 +1,25 @@
+{
+	"name": "bsky-list-fresh",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+    	"deploy:staging": "pnpm build:public && wrangler deploy --env staging",
+    	"deploy:prod": "pnpm build:public && wrangler deploy --env production",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "pnpm build:public && vitest",
+		"cf-typegen": "wrangler types",
+		"build:public": "npx tsx scripts/build-public.ts"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"esbuild": "~0.27.0",
+		"typescript": "^5.5.2",
+		"vitest": "~3.2.0",
+		"wrangler": "^4.50.0"
+	},
+	"dependencies": {
+		"@atproto/api": "^0.18.1",
+		"@atproto/syntax": "^0.4.1"
+	}
+}
