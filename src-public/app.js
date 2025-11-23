@@ -219,7 +219,7 @@ function validateAtUri(uri) {
 
 // Format date to YYYY/MM/DD in local time
 function formatDate(isoString) {
-	new Intl.DateTimeFormat(navigator.language, {
+	return new Intl.DateTimeFormat(navigator.language, {
 		dateStyle: "medium",
 	}).format(new Date(isoString));
 }
