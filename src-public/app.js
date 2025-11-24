@@ -189,6 +189,7 @@ function showToast(message) {
 // Show error message
 function showError(message) {
 	const errorDiv = document.getElementById('error-message');
+	if (!errorDiv) return;
 	errorDiv.textContent = message;
 	errorDiv.style.display = 'block';
 	errorDiv.style.color = 'var(--pico-del-color)';
@@ -196,53 +197,78 @@ function showError(message) {
 
 // Hide error message
 function hideError() {
-	document.getElementById('error-message').style.display = 'none';
+	const errorDiv = document.getElementById('error-message');
+	if (errorDiv) {
+		errorDiv.style.display = 'none';
+	}
 }
 
 // Display result
 function displayResult(data) {
-	// List name with link
-	const listLink = `https://bsky.app/profile/${data.creatorHandle}/lists/${data.rkey}`;
-	document.getElementById('result-list-name').innerHTML =
-		`<a href="${listLink}" target="_blank" rel="noopener noreferrer">${data.name || 'Untitled List'}</a>`;
+		const resultListName = document.getElementById('result-list-name');
+		const resultCreator = document.getElementById('result-creator');
+		const resultPurpose = document.getElementById('result-purpose');
+		const resultDescription = document.getElementById('result-description');
+		const resultItemCount = document.getElementById('result-item-count');
+		const resultLastUpdated = document.getElementById('result-last-updated');
+		const resultCard = document.getElementById('result-card');
+		const descSection = document.getElementById('description-section');
 
-	// Creator with link
-	const creatorLink = `https://bsky.app/profile/${data.creatorHandle}`;
-	document.getElementById('result-creator').innerHTML =
-		`<a href="${creatorLink}" target="_blank" rel="noopener noreferrer">@${data.creatorHandle}</a>`;
+		if (!resultListName || !resultCreator || !resultPurpose || !resultDescription ||
+			!resultItemCount || !resultLastUpdated || !resultCard || !descSection) {
+			console.error('Required elements not found');
+			return;
+		}
 
-	// Purpose
-	let purposeText = data.purpose;
-	if (data.purpose.includes('curatelist')) {
-		purposeText = translate('purposeList');
-	} else if (data.purpose.includes('modlist')) {
-		purposeText = translate('purposeModList');
-	}
-	document.getElementById('result-purpose').textContent = purposeText;
+		// List name with link
+		resultListName.textContent = '';
+		const listLink = document.createElement('a');
+		listLink.href = `https://bsky.app/profile/${encodeURIComponent(data.creatorHandle)}/lists/${encodeURIComponent(data.rkey)}`;
+		listLink.target = '_blank';
+		listLink.rel = 'noopener noreferrer';
+		listLink.textContent = data.name || 'Untitled List';
+		resultListName.appendChild(listLink);
 
-	// Description
-	const descSection = document.getElementById('description-section');
-	if (data.description) {
-		document.getElementById('result-description').textContent = data.description;
-		descSection.style.display = 'flex';
-	} else {
-		document.getElementById('result-description').textContent = translate('noDescription');
-		descSection.style.display = 'flex';
-	}
+		// Creator with link
+		resultCreator.textContent = '';
+		const creatorLink = document.createElement('a');
+		creatorLink.href = `https://bsky.app/profile/${encodeURIComponent(data.creatorHandle)}`;
+		creatorLink.target = '_blank';
+		creatorLink.rel = 'noopener noreferrer';
+		creatorLink.textContent = `@${data.creatorHandle}`;
+		resultCreator.appendChild(creatorLink);
 
-	// Item count
-	document.getElementById('result-item-count').textContent = data.listItemCount;
+		// Purpose
+		let purposeText = data.purpose;
+		if (data.purpose.includes('curatelist')) {
+			purposeText = translate('purposeList');
+		} else if (data.purpose.includes('modlist')) {
+			purposeText = translate('purposeModList');
+		}
+		resultPurpose.textContent = purposeText;
 
-	// Last updated
-	if (data.dateLastAdded) {
-		document.getElementById('result-last-updated').textContent = formatDate(data.dateLastAdded);
-	} else {
-		document.getElementById('result-last-updated').textContent = translate('noItems');
-	}
+		// Description
+		if (data.description) {
+			resultDescription.textContent = data.description;
+			descSection.style.display = 'flex';
+		} else {
+			resultDescription.textContent = translate('noDescription');
+			descSection.style.display = 'flex';
+		}
 
-	// Show result card
-	document.getElementById('result-card').style.display = 'block';
-	document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+		// Item count
+		resultItemCount.textContent = data.listItemCount;
+
+		// Last updated
+		if (data.dateLastAdded) {
+			resultLastUpdated.textContent = formatDate(data.dateLastAdded);
+		} else {
+			resultLastUpdated.textContent = translate('noItems');
+		}
+
+		// Show result card
+		resultCard.style.display = 'block';
+		resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function handleLanguageSwitcherClick(e, languageSwitcher) {
