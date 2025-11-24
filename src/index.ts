@@ -1,5 +1,5 @@
 /**
- * Bluesky List Fresh - Worker
+ * Bsky List Fresh - Worker
  * Retrieves Bluesky list information and last updated date
  */
 
