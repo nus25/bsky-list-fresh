@@ -5,7 +5,7 @@
 
 import { AtpAgent } from '@atproto/api';
 import type { ListInfoRequest, ListInfoResponse, ErrorResponse } from './types';
-import { isValidHandle, ensureValidDid, AtUri } from '@atproto/syntax';
+import { isValidHandle, ensureValidDid, AtUri, ensureValidAtUri } from '@atproto/syntax';
 
 const ATPROTO_SERVICE = 'https://public.api.bsky.app';
 
@@ -35,19 +35,20 @@ function addSecurityHeaders(response: Response): Response {
 /**
  * Parse AT URI or handle: format to extract DID and rkey
  */
-function parseListIdentifier(uri: string): AtUri | null {
+export function parseListIdentifier(uri: string): { success: true; atUri: AtUri } | { success: false; error: string } {
 	let atUri: AtUri;
 	try {
+		ensureValidAtUri(uri);
 		atUri = new AtUri(uri);
 		if (atUri.collection !== 'app.bsky.graph.list') {
 			console.error('Invalid collection in AT URI:', atUri.collection);
-			return null;
+			return { success: false, error: 'Invalid collection in URI' };
 		}
 	} catch (error) {
 		console.error('Error parsing AT URI:', error);
-		return null;
+		return { success: false, error: 'Invalid URI format' };
 	}
-	return atUri;
+	return { success: true, atUri };
 }
 
 /**
@@ -56,12 +57,13 @@ function parseListIdentifier(uri: string): AtUri | null {
 async function getListInfo(uri: string, env: Env): Promise<ListInfoResponse> {
 	const listCreator: { did: string; handle: string } = { did: '', handle: '' };
 	const parsed = parseListIdentifier(uri);
-	if (!parsed) {
+	if (!parsed.success) {
 		console.error('Failed to parse identifier:', uri);
-		throw new Error('Invalid URI format');
+		throw new Error(parsed.error);
 	}
-	let host = parsed.hostname;
-	let rkey = parsed.rkey;
+	const atUri = parsed.atUri;
+	let host = atUri.hostname;
+	let rkey = atUri.rkey;
 	const agent = new AtpAgent({ service: ATPROTO_SERVICE });
 
 	if (isValidHandle(host)) {
@@ -187,9 +189,9 @@ export default {
 						new Response(JSON.stringify(errorResponse), {
 							status: 400,
 							headers: {
-								 'Content-Type': 'application/json; charset=utf-8', 
-								 'Cache-Control': 'private, no-cache' 
-								},
+								'Content-Type': 'application/json; charset=utf-8',
+								'Cache-Control': 'private, no-cache',
+							},
 						})
 					);
 				}
@@ -208,13 +210,25 @@ export default {
 			} catch (error) {
 				console.error('Error handling /api/list-info:', error);
 
-				const errorResponse: ErrorResponse = {
-					error: 'INTERNAL_ERROR',
-					message: error instanceof Error ? error.message : 'An error occurred while processing the request',
-				};
+				const errorMessage = error instanceof Error ? error.message : 'An error occurred while processing the request';
 
-				// Return 404 for list not found
-				const statusCode = error instanceof Error && error.message === 'LIST_NOT_FOUND' ? 404 : 500;
+				// Determine status code based on error type
+				let statusCode = 500;
+				let errorType = 'INTERNAL_ERROR';
+
+				if (error instanceof Error) {
+					if (errorMessage === 'LIST_NOT_FOUND') {
+						statusCode = 404;
+					} else if (errorMessage === 'Invalid URI format' || errorMessage === 'Invalid collection in URI') {
+						statusCode = 400;
+						errorType = 'BAD_REQUEST';
+					}
+				}
+
+				const errorResponse: ErrorResponse = {
+					error: errorType,
+					message: errorMessage,
+				};
 
 				return addSecurityHeaders(
 					new Response(JSON.stringify(errorResponse), {
