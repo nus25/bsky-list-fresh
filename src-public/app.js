@@ -362,16 +362,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	if (uriParam) {
 		const uriInput = document.getElementById('list-uri');
 
-		// Convert Bluesky URL to AT URI if needed
-		const uri = convertBskyUrlToAtUri(uriParam);
-
-		if (uri && validateAtUri(uri)) {
-			uriInput.value = uri;
-			document.getElementById('list-form').dispatchEvent(new Event('submit'));
-		} else {
-			// Show the invalid URI in the input field for user correction
+		if (uriParam){
 			uriInput.value = uriParam;
-			showError(translate('errorInvalidUri'));
 		}
 	}
 });
