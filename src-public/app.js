@@ -19,6 +19,8 @@ const translations = {
 		noDescription: 'No description',
 		labelAcceptTos: 'I accept the',
 		tosLinkText: 'Terms of Service',
+		tosLoadError: 'Failed to load terms of service.',
+		tosContainerNotFound: 'Terms content not found.',
 		helpTitle: 'How to use',
 		helpBody: `
             <p><strong>What does this tool do?</strong></p>
@@ -59,6 +61,8 @@ const translations = {
 		noDescription: '説明なし',
 		labelAcceptTos: 'に同意します',
 		tosLinkText: '利用規約',
+		tosLoadError: '利用規約の読み込みに失敗しました。',
+		tosContainerNotFound: '利用規約の内容が見つかりませんでした。',
 		helpTitle: '使い方',
 		helpBody: `
             <p><strong>このツールは何をするの？</strong></p>
@@ -451,32 +455,101 @@ window.addEventListener('DOMContentLoaded', () => {
 	}
 });
 
+// HTML Sanitization helper
+function sanitizeHtml(element, allowedTags) {
+	const clone = element.cloneNode(true);
+	const allElements = clone.querySelectorAll('*');
+
+	allElements.forEach(el => {
+		// Remove elements not in allowedTags
+		if (!allowedTags.includes(el.tagName)) {
+			el.remove();
+			return;
+		}
+
+		// For anchor tags, sanitize href and attributes
+		if (el.tagName === 'A') {
+			const href = el.getAttribute('href');
+			if (href) {
+				// Remove dangerous protocols
+				const lowerHref = href.toLowerCase().trim();
+				if (lowerHref.startsWith('javascript:') ||
+					lowerHref.startsWith('data:') ||
+					lowerHref.startsWith('vbscript:')) {
+					el.removeAttribute('href');
+				}
+			}
+
+			// Keep only safe attributes for links
+			const safeAttrs = ['href', 'target', 'rel'];
+			Array.from(el.attributes).forEach(attr => {
+				if (!safeAttrs.includes(attr.name)) {
+					el.removeAttribute(attr.name);
+				}
+			});
+
+			// Ensure external links have proper attributes
+			if (el.getAttribute('href')) {
+				el.setAttribute('target', '_blank');
+				el.setAttribute('rel', 'noopener noreferrer');
+			}
+		} else {
+			// Remove all attributes from other elements
+			Array.from(el.attributes).forEach(attr => {
+				el.removeAttribute(attr.name);
+			});
+		}
+	});
+
+	return clone;
+}
+
 // Terms of Service modal functionality
 async function openTosModal() {
 	const modal = document.getElementById('tos-modal');
 	const tosBody = document.getElementById('tos-body');
-	
+
+	if (!modal || !tosBody) {
+		console.error('Modal elements not found');
+		return;
+	}
+
 	// Determine which terms file to load based on current language
 	const termsFile = currentLang === 'ja' ? '/terms-ja.html' : '/terms-en.html';
-	
+
 	try {
 		const response = await fetch(termsFile);
 		if (!response.ok) {
 			throw new Error('Failed to load terms');
 		}
-		
+
+		// Verify content type
+		const contentType = response.headers.get('content-type');
+		if (!contentType || !contentType.includes('text/html')) {
+			throw new Error('Invalid content type');
+		}
+
 		const html = await response.text();
-		
+
 		// Parse HTML and extract content from .container
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(html, 'text/html');
 		const container = doc.querySelector('.container');
-		
+
 		if (container) {
-			tosBody.innerHTML = container.innerHTML;
+			// Sanitize: only allow specific safe elements
+			const allowedTags = ['P', 'H1', 'H2', 'H3', 'H4', 'UL', 'OL', 'LI', 'STRONG', 'EM', 'BR', 'A'];
+			const sanitizedContainer = sanitizeHtml(container, allowedTags);
+			tosBody.innerHTML = sanitizedContainer.innerHTML;
+			modal.classList.add('show');
+		} else {
+			console.error('Container not found in terms file');
+			tosBody.textContent = translate('tosContainerNotFound');
 			modal.classList.add('show');
 		}
 	} catch (error) {
 		console.error('Error loading terms:', error);
+		tosBody.textContent = translate('tosLoadError');
+		modal.classList.add('show');
 	}
 }
