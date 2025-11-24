@@ -142,46 +142,6 @@ function translate(key) {
 	return translations[currentLang][key] || key;
 }
 
-// initialize TOS checkbox and submit button
-const acceptTosCheckbox = document.getElementById('accept-tos');
-const submitButton = document.getElementById('submit-button');
-
-if (acceptTosCheckbox && submitButton) {
-	// 初期状態：チェックされていない場合はボタンを無効化
-	submitButton.disabled = !acceptTosCheckbox.checked;
-
-	// チェックボックスの状態が変わったときにボタンの状態を更新
-	acceptTosCheckbox.addEventListener('change', (e) => {
-		submitButton.disabled = !e.target.checked;
-	});
-}
-
-// Initialize language
-currentLang = detectLanguage();
-setLanguage(currentLang);
-
-// Language switcher event
-const languageOptions = document.getElementById('language-options');
-const languageSwitcher = document.querySelector('.language-switcher');
-
-if (languageOptions) {
-	languageOptions.addEventListener('click', (e) => {
-		if (e.target.tagName === 'A') {
-			e.preventDefault();
-			const selectedLang = e.target.textContent.trim();
-
-			// 言語の判定
-			const newLang = selectedLang === '日本語' ? 'ja' : 'en';
-			setLanguage(newLang);
-
-			// detailsを閉じる
-			if (languageSwitcher) {
-				languageSwitcher.removeAttribute('open');
-			}
-		}
-	});
-}
-
 // Convert Bluesky list URL to AT URI
 function convertBskyUrlToAtUri(input) {
 	// Check if it's already an AT URI
@@ -285,8 +245,24 @@ function displayResult(data) {
 	document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function handleLanguageSwitcherClick(e, languageSwitcher) {
+	if (e.target.tagName === 'A') {
+		e.preventDefault();
+		const selectedLang = e.target.textContent.trim();
+
+		// 言語の判定
+		const newLang = selectedLang === '日本語' ? 'ja' : 'en';
+		setLanguage(newLang);
+
+		// detailsを閉じる
+		if (languageSwitcher) {
+			languageSwitcher.removeAttribute('open');
+		}
+	}
+}
+
 // Handle form submission
-document.getElementById('list-form').addEventListener('submit', async (e) => {
+async function handleFormSubmit(e) {
 	e.preventDefault();
 
 	hideError();
@@ -297,6 +273,7 @@ document.getElementById('list-form').addEventListener('submit', async (e) => {
 	// Convert Bluesky URL to AT URI if needed
 	const uri = convertBskyUrlToAtUri(input);
 	console.log('Converted URI:', uri);
+
 	// Validate AT URI
 	if (!uri || !validateAtUri(uri)) {
 		showError(translate('errorInvalidUri'));
@@ -306,16 +283,17 @@ document.getElementById('list-form').addEventListener('submit', async (e) => {
 	// Disable form during submission
 	const submitButton = document.getElementById('submit-button');
 	const submitText = document.getElementById('submit-text');
+	const loadingIndicator = document.getElementById('loading-indicator');
+	const resultCard = document.getElementById('result-card');
+
 	submitButton.disabled = true;
 	uriInput.disabled = true;
 	submitText.textContent = translate('submitTextLoading');
-	const loadingIndicator = document.getElementById('loading-indicator');
 
-	// hide result card
-	document.getElementById('result-card').style.display = 'none';
-	// Show loading indicator
-    loadingIndicator.style.display = 'block';
-	
+	// Hide result card and show loading indicator
+	resultCard.style.display = 'none';
+	loadingIndicator.style.display = 'block';
+
 	try {
 		const response = await fetch('/api/list-info', {
 			method: 'POST',
@@ -326,7 +304,6 @@ document.getElementById('list-form').addEventListener('submit', async (e) => {
 		});
 
 		if (!response.ok) {
-
 			const errorData = await response.json();
 			// Show specific error messages
 			if (errorData.message === 'LIST_NOT_FOUND') {
@@ -350,12 +327,92 @@ document.getElementById('list-form').addEventListener('submit', async (e) => {
 		submitText.textContent = translate('submitText');
 
 		// Hide loading indicator
-        loadingIndicator.style.display = 'none';
+		loadingIndicator.style.display = 'none';
 	}
-});
+}
 
-// Check for URI parameter on load
+// Initialize
 window.addEventListener('DOMContentLoaded', () => {
+	// initialize TOS checkbox and submit button
+	const acceptTosCheckbox = document.getElementById('accept-tos');
+	const submitButton = document.getElementById('submit-button');
+
+	if (acceptTosCheckbox && submitButton) {
+		// 初期状態：チェックされていない場合はボタンを無効化
+		submitButton.disabled = !acceptTosCheckbox.checked;
+
+		// チェックボックスの状態が変わったときにボタンの状態を更新
+		acceptTosCheckbox.addEventListener('change', (e) => {
+			submitButton.disabled = !e.target.checked;
+		});
+	}
+
+	// Initialize language
+	currentLang = detectLanguage();
+	setLanguage(currentLang);
+
+	// Language switcher event
+	const languageOptions = document.getElementById('language-options');
+	const languageSwitcher = document.querySelector('.language-switcher');
+
+	if (languageOptions) {
+		languageOptions.addEventListener('click', (e) => {
+			handleLanguageSwitcherClick(e, languageSwitcher);
+		});
+	}
+
+	// Handle form submission
+	const listForm = document.getElementById('list-form');
+	if (listForm) {
+		listForm.addEventListener('submit', handleFormSubmit);
+	}
+
+	// ToS link click handler
+	document.addEventListener('click', (e) => {
+		if (e.target.id === 'tos-link') {
+			e.preventDefault();
+			openTosModal();
+		}
+	});
+
+	// ToS modal close handlers
+	document.getElementById('tos-close').addEventListener('click', () => {
+		document.getElementById('tos-modal').classList.remove('show');
+	});
+
+	document.getElementById('tos-modal').addEventListener('click', (e) => {
+		if (e.target.id === 'tos-modal') {
+			document.getElementById('tos-modal').classList.remove('show');
+		}
+	});
+
+	// Help modal functionality
+	document.getElementById('help-icon').addEventListener('click', () => {
+		const modal = document.getElementById('help-modal');
+		document.getElementById('help-title').textContent = translate('helpTitle');
+		document.getElementById('help-body').innerHTML = translate('helpBody');
+		modal.classList.add('show');
+	});
+
+	document.getElementById('help-close').addEventListener('click', () => {
+		document.getElementById('help-modal').classList.remove('show');
+	});
+
+	document.getElementById('help-modal').addEventListener('click', (e) => {
+		if (e.target.id === 'help-modal') {
+			document.getElementById('help-modal').classList.remove('show');
+		}
+	});
+
+	// ESC key to close modals
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') {
+			document.getElementById('help-modal').classList.remove('show');
+			document.getElementById('tos-modal').classList.remove('show');
+		}
+	});
+
+	// Pre-fill input if "uri" parameter is present
 	const urlParams = new URLSearchParams(window.location.search);
 	const uriParam = urlParams.get('uri');
 
@@ -397,47 +454,3 @@ async function openTosModal() {
 		console.error('Error loading terms:', error);
 	}
 }
-
-document.addEventListener('click', (e) => {
-	if (e.target.id === 'tos-link') {
-		e.preventDefault();
-		openTosModal();
-	}
-});
-
-// ToS modal close handlers
-document.getElementById('tos-close').addEventListener('click', () => {
-	document.getElementById('tos-modal').classList.remove('show');
-});
-
-document.getElementById('tos-modal').addEventListener('click', (e) => {
-	if (e.target.id === 'tos-modal') {
-		document.getElementById('tos-modal').classList.remove('show');
-	}
-});
-
-// Help modal functionality
-document.getElementById('help-icon').addEventListener('click', () => {
-	const modal = document.getElementById('help-modal');
-	document.getElementById('help-title').textContent = translate('helpTitle');
-	document.getElementById('help-body').innerHTML = translate('helpBody');
-	modal.classList.add('show');
-});
-
-document.getElementById('help-close').addEventListener('click', () => {
-	document.getElementById('help-modal').classList.remove('show');
-});
-
-document.getElementById('help-modal').addEventListener('click', (e) => {
-	if (e.target.id === 'help-modal') {
-		document.getElementById('help-modal').classList.remove('show');
-	}
-});
-
-// ESC key to close modals
-document.addEventListener('keydown', (e) => {
-	if (e.key === 'Escape') {
-		document.getElementById('help-modal').classList.remove('show');
-		document.getElementById('tos-modal').classList.remove('show');
-	}
-});
