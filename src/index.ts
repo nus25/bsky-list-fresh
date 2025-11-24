@@ -73,7 +73,7 @@ async function getListInfo(uri: string, env: Env): Promise<ListInfoResponse> {
 			debugLog(env, 'Resolved handle and DID:', listCreator.handle, listCreator.did);
 		} catch (error) {
 			console.error('Failed to resolve handle:', host, error);
-			throw new Error('Failed to resolve handle to DID');
+			throw new Error('LIST_NOT_FOUND');
 		}
 	} else {
 		ensureValidDid(host);
