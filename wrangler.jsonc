@@ -9,7 +9,7 @@
 	"dev": {
 		"ip": "127.0.0.1"
 	},
-	"compatibility_date": "2025-11-21",
+	"compatibility_date": "2026-03-11",
 	"compatibility_flags": [
 		"global_fetch_strictly_public"
 	],

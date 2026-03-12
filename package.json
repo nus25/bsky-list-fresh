@@ -12,11 +12,11 @@
 		"build:public": "npx tsx scripts/build-public.ts"
 	},
 	"devDependencies": {
-		"esbuild": "~0.27.2",
-		"@cloudflare/vitest-pool-workers": "^0.12.4",
+		"esbuild": "~0.27.3",
+		"@cloudflare/vitest-pool-workers": "^0.12.21",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
-		"wrangler": "^4.60.0"
+		"wrangler": "^4.72.0"
 	},
 	"dependencies": {
 		"@atproto/api": "^0.18.17",
