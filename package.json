@@ -13,10 +13,10 @@
 	},
 	"devDependencies": {
 		"esbuild": "~0.27.3",
-		"@cloudflare/vitest-pool-workers": "^0.12.21",
+		"@cloudflare/vitest-pool-workers": "^0.13.3",
 		"typescript": "^5.5.2",
-		"vitest": "~3.2.0",
-		"wrangler": "^4.72.0"
+		"vitest": "^4.1.0",
+		"wrangler": "^4.77.0"
 	},
 	"dependencies": {
 		"@atproto/api": "^0.18.17",

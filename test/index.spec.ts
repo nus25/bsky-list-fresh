@@ -1,4 +1,5 @@
-import { env, createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
+import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
+import { env} from 'cloudflare:workers';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker,{parseListIdentifier} from '../src';
 import type { ListInfoRequest, ListInfoResponse, ErrorResponse } from '../src/types';
@@ -11,25 +12,27 @@ const mockGetRecord = vi.fn();
 // Mock @atproto/api module
 vi.mock('@atproto/api', () => {
 	return {
-		AtpAgent: vi.fn().mockImplementation(() => ({
-			app: {
-				bsky: {
-					actor: {
-						getProfile: mockGetProfile,
-					},
-					graph: {
-						getList: mockGetList,
-					},
-				},
-			},
-			com: {
-				atproto: {
-					repo: {
-						getRecord: mockGetRecord,
+		AtpAgent: vi.fn().mockImplementation(function () {
+			return {
+				app: {
+					bsky: {
+						actor: {
+							getProfile: mockGetProfile,
+						},
+						graph: {
+							getList: mockGetList,
+						},
 					},
 				},
-			},
-		})),
+				com: {
+					atproto: {
+						repo: {
+							getRecord: mockGetRecord,
+						},
+					},
+				},
+			};
+		}),
 	};
 });
 
