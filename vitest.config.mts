@@ -6,5 +6,9 @@ export default defineConfig({
 		cloudflareTest({
 			wrangler: { configPath: "./wrangler.jsonc" },
 		}),
-	]
+	],
+	test:{
+		include: ["./test/**/*.spec.ts"],
+		silent: true,
+	}
 });

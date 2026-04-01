@@ -12,12 +12,12 @@
 		"build:public": "tsx scripts/build-public.ts"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.13.3",
+		"@cloudflare/vitest-pool-workers": "^0.14.0",
 		"esbuild": "~0.27.4",
 		"tsx": "^4.21.0",
 		"typescript": "^5.5.2",
-		"vitest": "^4.1.0",
-		"wrangler": "^4.77.0"
+		"vitest": "^4.1.2",
+		"wrangler": "^4.79.0"
 	},
 	"dependencies": {
 		"@atproto/api": "^0.18.17",
